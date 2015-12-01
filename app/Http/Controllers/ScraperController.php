@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests;
+use App\Link;
 use App\Scrap;
 use Goutte\Client;
 use Illuminate\Http\Request;
@@ -15,7 +16,6 @@ class ScraperController extends Controller
     public function getIndex()
     {
 
-    	$scrap = new Scrap;
 		//$ua = 'Mozilla/5.0 (Windows NT 5.1; rv:16.0) Gecko/20100101 Firefox/16.0 (ROBOT)';
     	$client = new Client();
     	$client->setHeader('User-Agent', "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36");
@@ -37,20 +37,62 @@ class ScraperController extends Controller
 
 			$this->tor_new_identity();
 			var_dump($isBlock);
-			return $this->getIndex();
+			//return $this->getIndex();
 		} 
 
-		$crawler->filter('p.row')->each(function ($node) {
-			    $url = $node->attr("data-pid")."\n";
+		$crawler->filter('a.i')->each(function ($node) {
+			    $url = $node->attr("href");
 			    //$link = $node->filter('a')->first();
-			    $text = $node->filter('.hdrlnk')->text();
+			    $text = $node->text();
+			    $fullUrl = "http://auburn.craigslist.org".$url;
 			    //$scrap::create(['url' => $url, 'title' => $text ]);
+			   	Link::create(['url'=>$fullUrl, 'title'=> $text]);
 			    var_dump($url);
 			    $this->tor_new_identity();
 		});
 		
 
 
+    }
+
+    public function getData(){
+
+    	$link = Link::first();
+
+ 		//$ua = 'Mozilla/5.0 (Windows NT 5.1; rv:16.0) Gecko/20100101 Firefox/16.0 (ROBOT)';
+    	$client = new Client();
+    	$client->setHeader('User-Agent', "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36");
+    	//Set proxy using tor
+		$guzzleClient = new \GuzzleHttp\Client([
+		    'curl' => [
+		        CURLOPT_PROXY => '127.0.0.1:9050',
+		        CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
+		    ],
+		]);  
+
+		$client->setClient($guzzleClient);	
+
+		$crawler = $client->request('GET', $link->url);
+		//$crawler = $client->click($crawler->selectLink('reply ')->link());
+		$isBlock = $crawler->filter('p')->text();
+		
+		if(strpos($isBlock,'blocked') != false ) {
+
+			$this->tor_new_identity();
+			//return $this->getIndex();
+		} 
+$this->tor_new_identity();
+			dd($crawler->html());
+		// $crawler->filter('a.i')->each(function ($node) {
+		// 	    $url = $node->attr("href")."\n";
+		// 	    //$link = $node->filter('a')->first();
+		// 	    $text = $node->text();
+		// 	    $fullUrl = "http://auburn.craigslist.org".$url;
+		// 	    //$scrap::create(['url' => $url, 'title' => $text ]);
+		// 	   	Link::create(['url'=>$fullUrl, 'title'=> $text]);
+		// 	    var_dump($url);
+		// 	    $this->tor_new_identity();
+		// });   	
     }
 
     /**
