@@ -73,16 +73,26 @@ class ScraperController extends Controller
 		$client->setClient($guzzleClient);	
 
 		$crawler = $client->request('GET', $link->url);
-		//$crawler = $client->click($crawler->selectLink('reply ')->link());
+		//$button = $crawler->filter('.reply_button');
+
 		$isBlock = $crawler->filter('p')->text();
 		
-		if(strpos($isBlock,'blocked') != false ) {
+		while(strpos($isBlock,'blocked') != false ) {
 
 			$this->tor_new_identity();
 			//return $this->getIndex();
+			$crawler = $client->request('GET', $link->url);
+			$isBlock = $crawler->filter('p')->text();	
+			sleep(5);		
 		} 
-$this->tor_new_identity();
-			dd($crawler->html());
+
+		$lnk = $crawler->selectLink('reply')->link();
+		$crawler = $client->click($lnk);
+		$title = $crawler->filter('title')->text();
+		$mobile = $crawler->filter('.mobile-only')->first()->text();
+		$email = $crawler->filter('.mailapp')->first()->text();
+		$this->tor_new_identity();
+		echo $title .' '. $mobile.' '.$email;
 		// $crawler->filter('a.i')->each(function ($node) {
 		// 	    $url = $node->attr("href")."\n";
 		// 	    //$link = $node->filter('a')->first();
