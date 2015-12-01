@@ -37,7 +37,7 @@ class ScraperController extends Controller
 
 			$this->tor_new_identity();	
 			return $this->getIndex();
-			
+
 		} 
 
 			$crawler->filter('p.row')->each(function ($node) {
@@ -74,7 +74,7 @@ class ScraperController extends Controller
 
     }
 
-	public function tor_new_identity($tor_ip='127.0.0.1', $control_port='9051', $auth_code=''){
+	public function tor_new_identity($tor_ip='127.0.0.1', $control_port='9050', $auth_code=''){
 	    $fp = fsockopen($tor_ip, $control_port, $errno, $errstr, 30);
 	    if (!$fp) return false; //can't connect to the control port
 	     
