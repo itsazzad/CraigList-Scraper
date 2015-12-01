@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Http\Requests;
+use App\Scrap;
 use Goutte\Client;
+use Illuminate\Http\Request;
 
 class ScraperController extends Controller
 {
@@ -15,7 +15,10 @@ class ScraperController extends Controller
     public function getIndex()
     {
 
+    	$scrap = new Scrap;
+		//$ua = 'Mozilla/5.0 (Windows NT 5.1; rv:16.0) Gecko/20100101 Firefox/16.0 (ROBOT)';
     	$client = new Client();
+    	$client->setHeader('User-Agent', "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36");
     	//Set proxy using tor
 		$guzzleClient = new \GuzzleHttp\Client([
 		    'curl' => [
@@ -32,15 +35,17 @@ class ScraperController extends Controller
 		
 		if(strpos($isBlock,'blocked') != false ) {
 
-			echo "Get a New Ip";
-			echo exec('sudo service tor restart');
-		} else {
+			$this->tor_new_identity();	
+			return $this->getIndex();
+			
+		} 
 
 			$crawler->filter('p.row')->each(function ($node) {
-				    print $node->attr("data-pid")."\n";
-				    echo $node->filter('.hdrlnk')->text();
-				});
-		}
+				    $url = $node->attr("href")."\n";
+				    $text = $node->filter('.hdrlnk')->text();
+				    $scrap::create(['url' => $url, 'title' => $text ]);
+			});
+		
 
 
     }
@@ -69,15 +74,22 @@ class ScraperController extends Controller
 
     }
 
-    public function getGit()
-    {	$client = new Client();
-		$crawler = $client->request('GET', 'http://github.com/');
-		$crawler = $client->click($crawler->selectLink('Sign in')->link());
-		$form = $crawler->selectButton('Sign in')->form();
-		$crawler = $client->submit($form, array('login' => 'sohel4r@gmail.com', 'password' => '$Carbon123'));
-
-		$crawler->filter('.header-logo')->each(function ($node) {
-		    print $node->text()."\n";
-		});    	
-    }
+	public function tor_new_identity($tor_ip='127.0.0.1', $control_port='9051', $auth_code=''){
+	    $fp = fsockopen($tor_ip, $control_port, $errno, $errstr, 30);
+	    if (!$fp) return false; //can't connect to the control port
+	     
+	    fputs($fp, "AUTHENTICATE $auth_code\r\n");
+	    $response = fread($fp, 1024);
+	    list($code, $text) = explode(' ', $response, 2);
+	    if ($code != '250') return false; //authentication failed
+	     
+	    //send the request to for new identity
+	    fputs($fp, "signal NEWNYM\r\n");
+	    $response = fread($fp, 1024);
+	    list($code, $text) = explode(' ', $response, 2);
+	    if ($code != '250') return false; //signal failed
+	     
+	    fclose($fp);
+	    return true;
+	}
 }
