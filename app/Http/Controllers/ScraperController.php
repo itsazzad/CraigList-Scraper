@@ -17,7 +17,7 @@ class ScraperController extends Controller
 		$status=array_rand("open", "blocked");
 		\Log::info($ip.":".$status);
 		if($status=='blocked'){
-			\Log::info("Gaining new IP");
+			\Log::info("Gaining new tor identity");
 		}else{
 			\Log::info("Processing craiglist data");
 		}
