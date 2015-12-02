@@ -12,7 +12,16 @@ use Illuminate\Http\Request;
 class ScraperController extends Controller
 {
     
-
+	public function craiglist(){
+		$ip=\Request::ip();
+		$status=array_rand("open", "blocked");
+		\Log::info($ip.":".$status);
+		if($status=='blocked'){
+			\Log::info("Gaining new IP");
+		}else{
+			\Log::info("Processing craiglist data");
+		}
+	} 
     public function getIndex()
     {
 
