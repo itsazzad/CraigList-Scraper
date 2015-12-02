@@ -16,3 +16,4 @@ Route::get('/', function () {
 });
 
 Route::controller('scrap','ScraperController');
+Route::controller('tor','TorController');
