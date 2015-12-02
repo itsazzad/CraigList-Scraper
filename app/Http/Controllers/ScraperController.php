@@ -43,7 +43,7 @@ public function torNew(){
 		if($status=='blocked'){
 			\Log::info("Gaining new tor identity");
 		        // Quit
-        if($this->tc)$this->tc->quit();
+        if($this->tc->connected)$this->tc->quit();
 	
         $this->torNew();
 
