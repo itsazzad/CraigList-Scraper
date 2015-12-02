@@ -11,13 +11,45 @@ use Illuminate\Http\Request;
 
 class ScraperController extends Controller
 {
-    
+	public function tc=false;
+public function torNew(){
+        // Connect to the TOR server using password authentication
+        $this->tc = new \TorControl\TorControl(
+            array(
+                'server' => 'localhost',
+                'port'   => 9051,
+                //'password' => '16:0DB96B1B985D6BA160DEE39AB7FCCBDFB864CE6C89FF8DCB63982F1AC2',//0VTbMcmjTi
+                'password' => '0VTbMcmjTi',//16:0DB96B1B985D6BA160DEE39AB7FCCBDFB864CE6C89FF8DCB63982F1AC2
+                'authmethod' => 1
+            )
+        );
+        
+        $this->tc->connect();
+        
+        $this->tc->authenticate();
+        
+        // Renew identity
+        $res = $this->tc->executeCommand('SIGNAL NEWNYM');
+        
+        // Echo the server reply code and message
+        \Log::info($res[0]['code'].': '.$res[0]['message']);
+}   
+ 
+
 	public function craiglist(){
 		$ip=\Request::ip();
 		$status=array_rand("open", "blocked");
 		\Log::info($ip.":".$status);
 		if($status=='blocked'){
 			\Log::info("Gaining new tor identity");
+		        // Quit
+        if($this->tc)$this->tc->quit();
+	
+        $this->torNew();
+
+		        
+			
+			
 		}else{
 			\Log::info("Processing craiglist data");
 		}
