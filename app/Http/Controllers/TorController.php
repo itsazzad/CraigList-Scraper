@@ -19,7 +19,7 @@ class TorController extends Controller
         $tc = new \TorControl\TorControl(
             array(
                 'server' => 'localhost',
-                'port'   => 9051,
+                'port'   => 9050,
                 //'password' => '16:0DB96B1B985D6BA160DEE39AB7FCCBDFB864CE6C89FF8DCB63982F1AC2',//0VTbMcmjTi
                 'password' => '0VTbMcmjTi',//16:0DB96B1B985D6BA160DEE39AB7FCCBDFB864CE6C89FF8DCB63982F1AC2
                 'authmethod' => 1
