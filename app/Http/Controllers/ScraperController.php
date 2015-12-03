@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 
 class ScraperController extends Controller
 {
-	public function tc=false;
+	public $tc=false;
 public function torNew(){
         // Connect to the TOR server using password authentication
         $this->tc = new \TorControl\TorControl(
