@@ -43,13 +43,14 @@ public function torNew(){
 		
 		$ip=\Request::ip();
 
-		$condition = array("open", "blocked");
+		$condition = array("open","blocked");
 		$key=array_rand($condition, 1);
 		$status = $condition[$key];
 
 		\Log::info($ip.":".$status);
 		if($status=='blocked'){
 			\Log::info("Gaining new tor identity");
+			echo "Blocked!!! Requesting New Ip";
 		        // Quit
         if(isset($this->tc->connected)) $this->tc->quit();
 	
@@ -60,8 +61,29 @@ public function torNew(){
 			
 		}else{
 			\Log::info("Processing craiglist data");
+			//Create a Request 
+    	$client = new Client();
+		$guzzleClient = new \GuzzleHttp\Client([
+		    'curl' => [
+		        CURLOPT_PROXY => '127.0.0.1:9050',
+		        CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
+		    ],
+		]);  
+
+		$client->setClient($guzzleClient);	    	
+    	$client->setHeader('User-Agent', "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36");
+		$crawler = $client->request('GET', 'http://188.166.223.127/ip.php');
+	var_dump($crawler->html());
+
 		}
 	} 
+
+	public function getTest(){
+		$ip=\Request::ip();
+		\Log::info($ip);
+		echo "<h2>Hello</h2>";
+	}
+
     public function getIndex()
     {
 
