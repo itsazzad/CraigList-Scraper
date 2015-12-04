@@ -73,7 +73,7 @@ public function torNew(){
 		$client->setClient($guzzleClient);	    	
     	$client->setHeader('User-Agent', "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36");
 		$crawler = $client->request('GET', 'http://188.166.223.127/ip.php');
-	var_dump($crawler->html());
+		var_dump($crawler->html());
 
 		}
 	} 
@@ -84,7 +84,9 @@ public function torNew(){
 		echo "<h2>Hello</h2>";
 	}
 
-
+	/**
+	 * @return Category search page link and store it to database
+	 */
 
     public function getIndex()
     {
@@ -105,11 +107,11 @@ public function torNew(){
 		$crawler = $client->request('GET', 'http://auburn.craigslist.org/apa');
 
 		$isBlock = $crawler->filter('p')->text();
-		
+		$isRun = true;
+	while($isRun){
 		if(strpos($isBlock,'blocked') != false ) {
 
 			$this->torNew();
-			var_dump($isBlock);
 			//return $this->getIndex();
 		} else {
 
@@ -121,17 +123,18 @@ public function torNew(){
 				    //$scrap::create(['url' => $url, 'title' => $text ]);
 
 				   	Link::create(['url'=>$fullUrl, 'title'=> $text]);
-				    var_dump($url);
-				    $this->torNew();
 			});			
+			$isRun = true;
 		}
 
-
+	}
 		
 
 
     }
-
+    /**
+     * @return category page single link url data eg.mobile, email etc
+     */
     public function getData(){
 
     	$link = Link::first();
@@ -153,45 +156,38 @@ public function torNew(){
 		//$button = $crawler->filter('.reply_button');
 
 		$isBlock = $crawler->filter('p')->text();
-		
+		$isRun = true;
+		$i = 0;
+		while($isRun){
 		if(strpos($isBlock,'blocked') != false ) {
 
 			$this->torNew();
 			//return $this->getIndex();
 			$crawler = $client->request('GET', $link->url);
 			$isBlock = $crawler->filter('p')->text();	
-			echo $isBlock;
+
 		} else {
 
 			$lnk = $crawler->selectLink('reply')->link();
 			$crawler = $client->click($lnk);
 
-			if (empty($crawler->filter('.captcha')->text())) {
+			if ($crawler->filterXpath("//div[@class='captcha']")->count()) {
 
-				echo "No";
-				var_dump($crawler->html());
-				$title = $crawler->filter('title')->text();
-				$mobile = $crawler->filter('.mobile-only')->first()->text();
-				$email = $crawler->filter('.mailapp')->first()->text();
-				echo $link->url .' '.$title .' '. $mobile.' '.$email;	
-				Scrap::create(['url' => $link->url, 'title' => $title, 'email' => $email, 'phone' => $mobile ]);				
+				$this->torNew();
 
 			} else {
 
-				echo "Ok";
 				var_dump($crawler->html());
 				$title = $crawler->filter('title')->text();
 				$mobile = $crawler->filter('.mobile-only')->first()->text();
 				$email = $crawler->filter('.mailapp')->first()->text();
 				echo $link->url .' '.$title .' '. $mobile.' '.$email;	
 				Scrap::create(['url' => $link->url, 'title' => $title, 'email' => $email, 'phone' => $mobile ]);				
-
-
+				$isRun = false;
 			}
-			$this->torNew();
-			
 			
 		}
+	}//End While
 
 
 		// $crawler->filter('a.i')->each(function ($node) {
@@ -231,6 +227,7 @@ public function torNew(){
     }
 
 	public function tor_new_identity($tor_ip='127.0.0.1', $control_port='9051', $auth_code='sohelrana'){
+	    
 	    $fp = fsockopen($tor_ip, $control_port, $errno, $errstr, 30);
 	    if (!$fp) return false; //can't connect to the control port
 	     
@@ -249,5 +246,6 @@ public function torNew(){
 	     
 	    fclose($fp);
 	    return true;
+
 	}
 }
