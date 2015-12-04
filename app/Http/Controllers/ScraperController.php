@@ -124,7 +124,7 @@ public function torNew(){
 
 				   	Link::create(['url'=>$fullUrl, 'title'=> $text]);
 			});			
-			$isRun = true;
+			$isRun = false;
 		}
 
 	}
