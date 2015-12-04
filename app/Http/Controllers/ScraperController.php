@@ -60,8 +60,8 @@ public function torNew(){
 			
 			
 		}else{
-			\Log::info("Processing craiglist data");
-			//Create a Request 
+		
+		//Make a new Request
     	$client = new Client();
 		$guzzleClient = new \GuzzleHttp\Client([
 		    'curl' => [
@@ -83,6 +83,8 @@ public function torNew(){
 		\Log::info($ip);
 		echo "<h2>Hello</h2>";
 	}
+
+
 
     public function getIndex()
     {
@@ -106,21 +108,25 @@ public function torNew(){
 		
 		if(strpos($isBlock,'blocked') != false ) {
 
-			$this->tor_new_identity();
+			$this->torNew();
 			var_dump($isBlock);
 			//return $this->getIndex();
-		} 
+		} else {
 
-		$crawler->filter('a.i')->each(function ($node) {
-			    $url = $node->attr("href");
-			    //$link = $node->filter('a')->first();
-			    $text = $node->text();
-			    $fullUrl = "http://auburn.craigslist.org".$url;
-			    //$scrap::create(['url' => $url, 'title' => $text ]);
-			   	Link::create(['url'=>$fullUrl, 'title'=> $text]);
-			    var_dump($url);
-			    $this->tor_new_identity();
-		});
+			$crawler->filter('a.i')->each(function ($node) {
+				    $url = $node->attr("href");
+				    //$link = $node->filter('a')->first();
+				    $text = $node->text();
+				    $fullUrl = "http://auburn.craigslist.org".$url;
+				    //$scrap::create(['url' => $url, 'title' => $text ]);
+
+				   	Link::create(['url'=>$fullUrl, 'title'=> $text]);
+				    var_dump($url);
+				    $this->torNew();
+			});			
+		}
+
+
 		
 
 
@@ -148,22 +154,46 @@ public function torNew(){
 
 		$isBlock = $crawler->filter('p')->text();
 		
-		while(strpos($isBlock,'blocked') != false ) {
+		if(strpos($isBlock,'blocked') != false ) {
 
-			$this->tor_new_identity();
+			$this->torNew();
 			//return $this->getIndex();
 			$crawler = $client->request('GET', $link->url);
 			$isBlock = $crawler->filter('p')->text();	
-			sleep(5);		
-		} 
+			echo $isBlock;
+		} else {
 
-		$lnk = $crawler->selectLink('reply')->link();
-		$crawler = $client->click($lnk);
-		$title = $crawler->filter('title')->text();
-		$mobile = $crawler->filter('.mobile-only')->first()->text();
-		$email = $crawler->filter('.mailapp')->first()->text();
-		$this->tor_new_identity();
-		echo $title .' '. $mobile.' '.$email;
+			$lnk = $crawler->selectLink('reply')->link();
+			$crawler = $client->click($lnk);
+
+			if (empty($crawler->filter('.captcha')->text())) {
+
+				echo "No";
+				var_dump($crawler->html());
+				$title = $crawler->filter('title')->text();
+				$mobile = $crawler->filter('.mobile-only')->first()->text();
+				$email = $crawler->filter('.mailapp')->first()->text();
+				echo $link->url .' '.$title .' '. $mobile.' '.$email;	
+				Scrap::create(['url' => $link->url, 'title' => $title, 'email' => $email, 'phone' => $mobile ]);				
+
+			} else {
+
+				echo "Ok";
+				var_dump($crawler->html());
+				$title = $crawler->filter('title')->text();
+				$mobile = $crawler->filter('.mobile-only')->first()->text();
+				$email = $crawler->filter('.mailapp')->first()->text();
+				echo $link->url .' '.$title .' '. $mobile.' '.$email;	
+				Scrap::create(['url' => $link->url, 'title' => $title, 'email' => $email, 'phone' => $mobile ]);				
+
+
+			}
+			$this->torNew();
+			
+			
+		}
+
+
 		// $crawler->filter('a.i')->each(function ($node) {
 		// 	    $url = $node->attr("href")."\n";
 		// 	    //$link = $node->filter('a')->first();
