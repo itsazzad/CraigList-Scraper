@@ -28,9 +28,9 @@ return [
 
     'connections' => [
         'local' => [
-            'host'      => '',
-            'username'  => '',
-            'password'  => '',
+            'host'      => env('SSH_HOST', ''),
+            'username'  => env('SSH_USER', ''),
+            'password'  => env('SSH_PASSWORD', ''),
             'key'       => '',
             'keytext'   => '',
             'keyphrase' => '',
@@ -51,7 +51,7 @@ return [
     */
 
     'groups' => [
-        'web' => ['production'],
+        'web' => ['local'],
     ],
 
 ];
