@@ -1,4 +1,6 @@
-class Server extends BaseController {
+namespace App\Http\Controllers;
+
+class Server extends Controller {
     
         public function deploy() {
           SSH::into('production')->run(array(
