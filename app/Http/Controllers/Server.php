@@ -1,3 +1,4 @@
+<?php
 namespace App\Http\Controllers;
 
 class Server extends Controller {
@@ -13,3 +14,4 @@ class Server extends Controller {
 
         }
     }
+?>
