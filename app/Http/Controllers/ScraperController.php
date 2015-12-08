@@ -65,7 +65,7 @@ public function torNew(){
     	$client = new Client();
 		$guzzleClient = new \GuzzleHttp\Client([
 		    'curl' => [
-		        CURLOPT_PROXY => '127.0.0.1:9050',
+		        CURLOPT_PROXY => '127.0.0.1:9050',//undefined constant CURLOPT_PROXY???
 		        CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
 		    ],
 		]);  
