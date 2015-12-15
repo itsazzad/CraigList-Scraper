@@ -8,7 +8,8 @@
         "php": ">=5.5.9",
         "laravel/framework": "5.1.*",
         "dunglas/php-torcontrol": "*",
-        "fabpot/goutte": "*"
+        "fabpot/goutte": "*",
+        "illuminate/html": "^5.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

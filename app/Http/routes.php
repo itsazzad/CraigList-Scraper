@@ -15,6 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::controller('data', "DataController");
 Route::get('tor', 'ScraperController@torNew');
 Route::get('craiglist', 'ScraperController@craiglist');
 Route::controller('scrap','ScraperController');

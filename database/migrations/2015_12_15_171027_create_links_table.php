@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateLinksTables extends Migration
+class CreateLinksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,11 @@ class CreateLinksTables extends Migration
     {
         Schema::create('links', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('url', 500);
-            $table->string('title', 500);
+            $table->integer('url_id')->unsigned();
+            $table->string('name')->unique();
             $table->timestamps();
+            $table->foreign('url_id')
+                  ->references('id')->on('urls')->onDelete('cascade');
         });
     }
 

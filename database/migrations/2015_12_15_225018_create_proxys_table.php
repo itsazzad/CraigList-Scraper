@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateScrapTable extends Migration
+class CreateProxysTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,13 +12,10 @@ class CreateScrapTable extends Migration
      */
     public function up()
     {
-        Schema::create('scraps', function (Blueprint $table) {
+        Schema::create('proxys', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('area');
-            $table->string('url')->unique();
-            $table->string('title', 1000);
-            $table->string('email');
-            $table->string('phone');
+            $table->string('ip')->unique();
+            $table->string('port');
             $table->timestamps();
         });
     }
@@ -30,6 +27,6 @@ class CreateScrapTable extends Migration
      */
     public function down()
     {
-        Schema::drop('scraps');
+        Schema::drop('proxys');
     }
 }
