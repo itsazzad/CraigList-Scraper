@@ -145,6 +145,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        Collective\Remote\RemoteServiceProvider::class,
+
     ],
 
     /*
@@ -194,6 +196,8 @@ return [
         'View'      => Illuminate\Support\Facades\View::class,
         'Html'      => 'Illuminate\Html\HtmlFacade',
         'Form'      => 'Illuminate\Html\FormFacade',
+        'SSH' => Collective\Remote\RemoteFacade::class,
+
     ],
 
 ];

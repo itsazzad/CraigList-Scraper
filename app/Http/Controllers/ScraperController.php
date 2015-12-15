@@ -21,8 +21,8 @@ public function torNew(){
                 'server' => 'localhost',
                 'port'   => 9051,
                 //'password' => '16:0DB96B1B985D6BA160DEE39AB7FCCBDFB864CE6C89FF8DCB63982F1AC2',//0VTbMcmjTi
-                //'password' => '0VTbMcmjTi',//16:0DB96B1B985D6BA160DEE39AB7FCCBDFB864CE6C89FF8DCB63982F1AC2
-                'password' => 'sohelrana',
+                'password' => '0VTbMcmjTi',//16:0DB96B1B985D6BA160DEE39AB7FCCBDFB864CE6C89FF8DCB63982F1AC2
+                //'password' => 'sohelrana',
                 'authmethod' => 1
             )
         );
@@ -65,7 +65,7 @@ public function torNew(){
     	$client = new Client();
 		$guzzleClient = new \GuzzleHttp\Client([
 		    'curl' => [
-		        CURLOPT_PROXY => '127.0.0.1:9050',
+		        CURLOPT_PROXY => '127.0.0.1:9050',//undefined constant CURLOPT_PROXY???
 		        CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
 		    ],
 		]);  
