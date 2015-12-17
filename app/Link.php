@@ -10,14 +10,14 @@ class Link extends Model
 
     protected $fillable = ["url_id","name"];
 
-    public function Lead()
+    public function lead()
     {
         return $this->hasOne('App\Lead');
     }
 
     public function url(){
 
-    	$this->belongsTo('App/Url');
+    	return $this->belongsTo('App\Url');
     }
 
 }

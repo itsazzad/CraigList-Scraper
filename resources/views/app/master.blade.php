@@ -18,9 +18,16 @@
     <![endif]-->
   </head>
   <body>
-    
-    <div class="container">
-      @yield('body')
+    @include('app.partial.nav')   
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-2">
+            @include('app.partial.sidebar')
+        </div>
+        <div class="col-md-10">
+            @yield('body')
+        </div>
+      </div>
     </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
