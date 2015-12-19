@@ -12,6 +12,12 @@
 	    </div>
 	@endif
 
+	@if(Session::has('message'))
+	    <div class="alert alert-success">
+	        <p>{{ Session::get('message') }}</p>
+	    </div>
+	@endif
+
 	{!! Form::open(['url'=>'data/url', 'method'=>'POST']) !!}
 
 		<div class="form-group">

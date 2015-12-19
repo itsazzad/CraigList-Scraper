@@ -41,7 +41,8 @@ class DataController extends Controller
 	        'name' => 'required|unique:urls|max:255',
 	    ]);		
 		$url = Url::create($request->all());
-		dd($url);
+		
+		return redirect()->back()->with('message',"Link insert was successfull");
 	}
 
 	/**
@@ -51,9 +52,19 @@ class DataController extends Controller
 
 	public function getGeturl(Request $request){
 
+		// Can't add proxy error handling 
+		// I need to find a good way
+		// So can't run it in while loop
+
 		$requesturl = $request->get('url');
 		$url = Url::where('name', $requesturl)->firstOrFail();
+		if($url->links()->count() > 0){
+			return redirect()->back()->with('message', 'You already do it !! . Try with new url :)');
+		}
 		$this->urlId = $url->id;
+
+		//if proxy list table is empty
+		if(!$this->proxylist()) return redirect()->back()->with('message', 'Please add porxy list or update proxy list');
 
     	$client = new Client();
     	$userAgent = "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36";
@@ -92,6 +103,8 @@ class DataController extends Controller
 			});			
 
 		}
+
+		return redirect()->back()->with('message', "Link was scraped please view link");
 
 	}
 
@@ -165,17 +178,20 @@ class DataController extends Controller
 
 			} else {
 
-				
+				//Need to apply try cache here
+				//Can't do it with try cache so can't enable mobile and name
+				//Many job post have't mobile and name
+
 				$title = $crawler->filter('title')->text();
 				//$mobile = $crawler->filter('.mobile-only')->first()->text();
 				$email = $crawler->filter('.mailapp')->first()->text();
 				//echo $link->url .' '.$title .' '. $mobile.' '.$email;	
-				$link->lead()->create(['title'=>$title,'email'=>$email]);
+				$link->lead()->create(['title'=>$title,'email'=>$email, 'phone'=>$mobile]);
 			}
 			
 		}
 
-
+		return redirect()->back()->with('message', "Please check scrap data");
 		
 	}
 
@@ -185,9 +201,8 @@ class DataController extends Controller
 
 	public function getInfolist()
 	{
-		$datas = Lead::all();
-		var_dump($datas);
-		//return view('app.data-list', compact('datas'));
+		$leads = Lead::all();
+		return view('app.data-list', compact('leads'));
 	}
 
 	public function proxylist()
@@ -196,8 +211,10 @@ class DataController extends Controller
 
 		// return $file[array_rand($file)];
 		$row = Proxy::orderByRaw("RAND()")->first();
-		
-		return $row->ip.':'.$row->port;
+		if(count($row) > 0 )		
+			return $row->ip.':'.$row->port;
+		else 
+			return false;
 	}
 
 	public function getProxy()
