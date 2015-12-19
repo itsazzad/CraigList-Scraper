@@ -186,7 +186,7 @@ class DataController extends Controller
 				//$mobile = $crawler->filter('.mobile-only')->first()->text();
 				$email = $crawler->filter('.mailapp')->first()->text();
 				//echo $link->url .' '.$title .' '. $mobile.' '.$email;	
-				$link->lead()->create(['title'=>$title,'email'=>$email, 'phone'=>$mobile]);
+				$link->lead()->create(['title'=>$title,'email'=>$email]);
 			}
 			
 		}
