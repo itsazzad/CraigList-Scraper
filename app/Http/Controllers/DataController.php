@@ -165,12 +165,12 @@ class DataController extends Controller
 
 			} else {
 
-				var_dump($crawler->html());
+				
 				$title = $crawler->filter('title')->text();
-				$mobile = $crawler->filter('.mobile-only')->first()->text();
+				//$mobile = $crawler->filter('.mobile-only')->first()->text();
 				$email = $crawler->filter('.mailapp')->first()->text();
 				//echo $link->url .' '.$title .' '. $mobile.' '.$email;	
-				$link->lead()->create(['title'=>$title, 'phone'=>$mobile, 'email'=>$email]);
+				$link->lead()->create(['title'=>$title,'email'=>$email]);
 			}
 			
 		}
@@ -186,8 +186,8 @@ class DataController extends Controller
 	public function getInfolist()
 	{
 		$datas = Lead::all();
-
-		return view('app.data-list', compact('datas'));
+		var_dump($datas);
+		//return view('app.data-list', compact('datas'));
 	}
 
 	public function proxylist()
