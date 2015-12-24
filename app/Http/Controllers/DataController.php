@@ -66,25 +66,11 @@ class DataController extends Controller
 		//if proxy list table is empty
 		if(!$this->proxylist()) return redirect()->back()->with('message', 'Please add porxy list or update proxy list');
 
-    	$client = new Client();
-    	$userAgent = "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36";
-    	//Set proxy using tor
-		$guzzleClient = new \GuzzleHttp\Client([
-            "headers"         => [
-                "User-Agent"  => $userAgent,
-            ],			
-		    'curl' => [
-		        CURLOPT_PROXY => $this->proxylist(),//'127.0.0.1:9050',
-		        CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_TIMEOUT_MS => 0,
-                CURLOPT_CONNECTTIMEOUT => 0,		        
-		    ],
-		]); 
+		$crawler = $this->helper_crawler($url);
+		$count = 0;
+		$run = true;
 
-		$client->setClient($guzzleClient);	
-
-		$crawler = $client->request('GET', $requesturl);
+//while($run){
 
 		$isBlock = $crawler->filter('p')->text();
 
@@ -92,7 +78,7 @@ class DataController extends Controller
 
 			//$this->torNew();
 			//return $this->getIndex();
-			echo $idBlock;
+			$crawler = $this->helper_crawler($url);
 		} else {
 
 			$crawler->filter('a.i')->each(function ($node) {
@@ -100,12 +86,13 @@ class DataController extends Controller
 				    //$link = $node->filter('a')->first();
 				    $text = $node->text();
 				    Url::find($this->urlId)->links()->create(['name'=>$url]);
-			});			
+			});
 
+			$run = false;
 		}
 
 		return redirect()->back()->with('message', "Link was scraped please view link");
-
+		//}
 	}
 
 	/**
@@ -141,31 +128,19 @@ class DataController extends Controller
 		}
 
 
-    	$client = new Client();
-    	$userAgent = "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36";
-    	//Set proxy using tor
-		$guzzleClient = new \GuzzleHttp\Client([
-            "headers"         => [
-                "User-Agent"  => $userAgent,
-            ],			
-		    'curl' => [
-		        CURLOPT_PROXY => $this->proxylist(),//'127.0.0.1:9050',
-		        CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_TIMEOUT_MS => 0,
-                CURLOPT_CONNECTTIMEOUT => 0,		        
-		    ],
-		]); 
+		$crawler = $this->helper_crawler($url);
 
-		$client->setClient($guzzleClient);	
+		$count = 0; 
 
-		$crawler = $client->request('GET', $url);
+	$run = true;
+
+	//while($run){
 
 		$isBlock = $crawler->filter('p')->text();
 
 		if(strpos($isBlock,'blocked') != false ) {
-
-			echo $isBlock;
+			//next process and change ip
+			$crawler = $this->helper_crawler($url);
 
 		} else {
 
@@ -174,25 +149,44 @@ class DataController extends Controller
 
 			if ($crawler->filterXpath("//div[@class='captcha']")->count()) {
 
-				dd($crawler->html());
+				//Next process and change ip
+				$crawler = $this->helper_crawler($url);
 
 			} else {
 
 				//Need to apply try cache here
 				//Can't do it with try cache so can't enable mobile and name
 				//Many job post have't mobile and name
+				echo "hello";
+				$title = $name = $email = $mobile = "";
 
-				$title = $crawler->filter('title')->text();
-				//$mobile = $crawler->filter('.mobile-only')->first()->text();
-				$email = $crawler->filter('.mailapp')->first()->text();
-				//echo $link->url .' '.$title .' '. $mobile.' '.$email;	
-				$link->lead()->create(['title'=>$title,'email'=>$email]);
+				if(!empty($title = $crawler->filter('title'))) {
+					$title = $title->text();
+				}
+				
+				if(!empty($name = $crawler->filterXPath('//div[@class="reply_options"]//ul/li'))){
+					$name = $name->text();
+				}
+		    	
+		    	if(!empty($email = $crawler->filterXPath('//ul/li/a[@class="mailapp"]'))) {
+		    		$email = $email->text();
+		    	}
+		    	
+		    	if($mobile = $crawler->filterXPath('//a[@class="mobile-only replytellink"]')){
+		    		$mobile = $mobile->attr('href');
+		    	}
+		    	
+	
+				$link->lead()->create(['title'=>$title,'email'=>$email, 'name'=> $name, 'phone' => $mobile]);
+
+				$run = false;
 			}
 			
 		}
 
-		return redirect()->back()->with('message', "Please check scrap data");
+			return redirect()->back()->with('message', "Please check scrap data");
 		
+		//}
 	}
 
 	/**
@@ -242,4 +236,31 @@ class DataController extends Controller
 
 		return redirect()->back()->with('message', 'Proxy List was updated');
 	}
+
+	/**
+	 * @return all data of that url
+	 */
+
+	public function helper_crawler($url)
+	{
+    	$client = new Client();
+    	$userAgent = "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36";
+    	//Set proxy using tor
+		$guzzleClient = new \GuzzleHttp\Client([
+            "headers"         => [
+                "User-Agent"  => $userAgent,
+            ],			
+		    'curl' => [
+		        CURLOPT_PROXY => $this->proxylist(),//'127.0.0.1:9050',
+		        CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_TIMEOUT_MS => 0,
+                CURLOPT_CONNECTTIMEOUT => 0,		        
+		    ],
+		]); 
+
+		$client->setClient($guzzleClient);	
+
+		return $client->request('GET', $url);		
+	}	
 }
