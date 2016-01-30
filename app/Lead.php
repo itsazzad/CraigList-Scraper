@@ -9,7 +9,7 @@ class Lead extends Model
     
     protected $table = "leads";
 
-    protected $fillable = ["link_id", "name", "phone", "email", "title"];
+    protected $fillable = ["link_id", "name", "phone", "email", "title", "mapLocation", "body"];
 
     public function link(){
 

@@ -19,6 +19,8 @@ class CreateLeadsTable extends Migration
             $table->string('phone', 20);
             $table->string('email', 100);
             $table->string('title');
+            $table->text('mapLocation');
+            $table->mediumText('body');
             $table->foreign('link_id')
                 ->references('id')->on('links')->onDelete('cascade');
             $table->timestamps();

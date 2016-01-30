@@ -14,6 +14,9 @@ use Illuminate\Http\Request;
 class DataController extends Controller
 {
     public $urlId;
+    public $title;
+    public $mapLocation;
+    public $body;
 
 	public function getIndex()
 	{
@@ -129,6 +132,18 @@ class DataController extends Controller
 
 		} else {
 
+			if($crawler->filter('title')->count()) {
+				$this->title = $crawler->filter('title')->text();
+			}
+
+	    	if($crawler->filterXPath('//div[@class="mapAndAttrs"]')->count()) {
+	    		$this->mapLocation = $crawler->filterXPath('//div[@class="mapAndAttrs"]')->html();
+	    	}
+
+	    	if($crawler->filterXPath('//section[@id="postingbody"]')->count()) {
+	    		$this->body = $crawler->filterXPath('//section[@id="postingbody"]')->html();
+	    	}
+
 			$lnk = $crawler->selectLink('reply')->link();
 
 			//Ading user-agent
@@ -146,14 +161,10 @@ class DataController extends Controller
 			} else {
 
 
-				$title = $name = $email = $mobile = "";
-
-				if($crawler->filter('title')->count()) {
-					$title = $crawler->filter('title')->text();
-				}
+				$name = $email = $mobile =  "";
 				
-				if($crawler->filterXPath('//div[@class="reply_options"]//ul/li')->count()){
-					$name = $crawler->filterXPath('//div[@class="reply_options"]//ul/li')->text();
+				if($crawler->filterXPath('//ul[not(@class)]/li[not(div)]')->count()){
+					$name = $crawler->filterXPath('//ul[not(@class)]/li[not(div)]')->text();
 				}
 		    	
 		    	if($crawler->filterXPath('//ul/li/a[@class="mailapp"]')->count()) {
@@ -165,8 +176,7 @@ class DataController extends Controller
 		    		$mobile = str_replace("tel:", '', $mb);
 		    	}
 		    	
-	
-				$link->lead()->create(['title'=>$title,'email'=>$email, 'name'=> $name, 'phone' => $mobile]);
+				$link->lead()->create(['title'=> $this->title,'email'=>$email, 'name'=> $name, 'phone' => $mobile, 'mapLocation' => $this->mapLocation, 'body' => $this->body]);
 
 			}
 			
@@ -246,15 +256,33 @@ class DataController extends Controller
 		$Accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8';
 		
 		$client = new Client(['HTTP_USER_AGENT' => $agent]);		
-		$data = $client->request('GET', 'http://localhost/test.html' );	
-		$data = $data->filterXpath("//span[@class='rows']/p/a[@class='i']");
-		$data->each(function ($node){
+		$crawler = $client->request('GET', 'http://localhost/test.html' );	
+    	// if($crawler->filterXPath('//div[@class="mapAndAttrs"]')->count()) {
+    	// 	$mapLocation = $crawler->filterXPath('//div[@class="mapAndAttrs"]')->html();
+    	// 	dd($mapLocation);
+    	// }
 
-			$data = $node->attr('href');
-			if( ! preg_match("/\/\/.+/", $data)) {
-				echo $data . '<br>';
-			}
+    	// if($crawler->filterXPath('//section[@id="postingbody"]')->count()) {
+    	// 	$body = $crawler->filterXPath('//section[@id="postingbody"]')->html();
+    	// 	dd($body);
+				$name = $email = $mobile =  "";
+				
+				if($crawler->filterXPath('//ul[not(@class)]/li[not(div)]')->count()){
+					$name = $crawler->filterXPath('//ul[not(@class)]/li[not(div)]')->text();
+				}
+		    	
+		    	if($crawler->filterXPath('//ul/li/a[@class="mailapp"]')->count()) {
+		    		$email = $crawler->filterXPath('//ul/li/a[@class="mailapp"]')->text();
+		    	}
+		    	
+		    	if($crawler->filterXPath('//a[@class="mobile-only replytellink"]')->count()){
+		    		$mb = $crawler->filterXPath('//a[@class="mobile-only replytellink"]')->attr('href');
+		    		$mobile = str_replace("tel:", '', $mb);
+		    	}
 
-		});	
+		    	echo "Name: ". $name ." Email: ". $email. " Mobile: ". $mobile;
+
+
+    	
 	}
 }

@@ -14,10 +14,7 @@
 				<td>{{ $lead->email }}</td>
 				<td>{{ $lead->phone }}</td>
 				<td>{{ $lead->name }}</td>
-				<?php 
-					$title = explode("-", $lead->title);
-				?>
-				<td>{{ $title[1] }}</td>
+				<td>{{ $lead->title }}</td>
 			</tr>
 		@empty
 			<tr>
