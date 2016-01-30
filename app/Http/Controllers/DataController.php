@@ -52,10 +52,6 @@ class DataController extends Controller
 
 	public function getGeturl(Request $request){
 
-		// Can't add proxy error handling 
-		// I need to find a good way
-		// So can't run it in while loop
-
 		$requesturl = $request->get('url');
 		$url = Url::where('name', $requesturl)->firstOrFail();
 		if($url->links()->count() > 0){
@@ -63,36 +59,26 @@ class DataController extends Controller
 		}
 		$this->urlId = $url->id;
 
-		//if proxy list table is empty
-		if(!$this->proxylist()) return redirect()->back()->with('message', 'Please add porxy list or update proxy list');
+		$crawler = $this->helper_crawler($url->name);
 
-		$crawler = $this->helper_crawler($url);
-		$count = 0;
-		$run = true;
-
-//while($run){
 
 		$isBlock = $crawler->filter('p')->text();
 
 		if(strpos($isBlock,'blocked') != false ) {
+			echo "Your ip is blocked. Please try again later";
+			die();
 
-			//$this->torNew();
-			//return $this->getIndex();
-			$crawler = $this->helper_crawler($url);
 		} else {
 
 			$crawler->filter('a.i')->each(function ($node) {
 				    $url = $node->attr("href");
-				    //$link = $node->filter('a')->first();
 				    $text = $node->text();
 				    Url::find($this->urlId)->links()->create(['name'=>$url]);
 			});
-
-			$run = false;
 		}
 
 		return redirect()->back()->with('message', "Link was scraped please view link");
-		//}
+
 	}
 
 	/**
@@ -130,63 +116,62 @@ class DataController extends Controller
 
 		$crawler = $this->helper_crawler($url);
 
-		$count = 0; 
-
-	$run = true;
-
-	//while($run){
 
 		$isBlock = $crawler->filter('p')->text();
 
 		if(strpos($isBlock,'blocked') != false ) {
 			//next process and change ip
-			$crawler = $this->helper_crawler($url);
+			echo "Ip Address is blocked";
+			die();
 
 		} else {
 
 			$lnk = $crawler->selectLink('reply')->link();
+
+			//Ading user-agent
+			$agent= 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36';
+			
+			$client = new Client(['HTTP_USER_AGENT' => $agent]);
+
 			$crawler = $client->click($lnk);
 
 			if ($crawler->filterXpath("//div[@class='captcha']")->count()) {
 
 				//Next process and change ip
-				$crawler = $this->helper_crawler($url);
+				echo "Captcha given wait few hours";
 
 			} else {
 
-				//Need to apply try cache here
-				//Can't do it with try cache so can't enable mobile and name
-				//Many job post have't mobile and name
-				echo "hello";
+
 				$title = $name = $email = $mobile = "";
 
-				if(!empty($title = $crawler->filter('title'))) {
-					$title = $title->text();
+				if($crawler->filter('title')->count()) {
+					$title = $crawler->filter('title')->text();
 				}
 				
-				if(!empty($name = $crawler->filterXPath('//div[@class="reply_options"]//ul/li'))){
-					$name = $name->text();
+				if($crawler->filterXPath('//div[@class="reply_options"]//ul/li')->count()){
+					$name = $crawler->filterXPath('//div[@class="reply_options"]//ul/li')->text();
 				}
 		    	
-		    	if(!empty($email = $crawler->filterXPath('//ul/li/a[@class="mailapp"]'))) {
-		    		$email = $email->text();
+		    	if($crawler->filterXPath('//ul/li/a[@class="mailapp"]')->count()) {
+		    		$email = $crawler->filterXPath('//ul/li/a[@class="mailapp"]')->text();
 		    	}
 		    	
-		    	if($mobile = $crawler->filterXPath('//a[@class="mobile-only replytellink"]')){
-		    		$mobile = $mobile->attr('href');
+		    	if($crawler->filterXPath('//a[@class="mobile-only replytellink"]')->count()){
+		    		$mb = $crawler->filterXPath('//a[@class="mobile-only replytellink"]')->attr('href');
+		    		$mobile = str_replace("tel:", '', $mb);
 		    	}
 		    	
 	
 				$link->lead()->create(['title'=>$title,'email'=>$email, 'name'=> $name, 'phone' => $mobile]);
 
-				$run = false;
 			}
 			
 		}
 
 			return redirect()->back()->with('message', "Please check scrap data");
 		
-		//}
+
 	}
 
 	/**
@@ -243,24 +228,22 @@ class DataController extends Controller
 
 	public function helper_crawler($url)
 	{
-    	$client = new Client();
-    	$userAgent = "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36";
-    	//Set proxy using tor
-		$guzzleClient = new \GuzzleHttp\Client([
-            "headers"         => [
-                "User-Agent"  => $userAgent,
-            ],			
-		    'curl' => [
-		        CURLOPT_PROXY => $this->proxylist(),//'127.0.0.1:9050',
-		        CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_TIMEOUT_MS => 0,
-                CURLOPT_CONNECTTIMEOUT => 0,		        
-		    ],
-		]); 
 
-		$client->setClient($guzzleClient);	
-
-		return $client->request('GET', $url);		
+		$agent= 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36';
+		$Accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8';
+		
+		$client = new Client(['HTTP_USER_AGENT' => $agent]);		
+		return  $client->request('GET', $url );			
 	}	
+
+
+	public function getTest()
+	{
+		$agent= 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36';
+		$Accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8';
+		
+		$client = new Client(['HTTP_USER_AGENT' => $agent]);		
+		$data = $client->request('GET', 'http://54.169.232.4' );	
+		dd($data->html());		
+	}
 }
