@@ -70,11 +70,14 @@ class DataController extends Controller
 
 		} else {
 
-			$crawler->filter('a.i')->each(function ($node) {
-				    $url = $node->attr("href");
-				    $text = $node->text();
-				    Url::find($this->urlId)->links()->create(['name'=>$url]);
-			});
+				$data = $crawler->filterXpath("//span[@class='rows']/p/a[@class='i']");
+				$data->each(function ($node){
+					$url = $node->attr('href');
+					if( ! preg_match("/\/\/.+/", $url)) {
+
+						Url::find($this->urlId)->links()->create(['name'=>$url]);
+					}
+				});	
 		}
 
 		return redirect()->back()->with('message', "Link was scraped please view link");
@@ -243,7 +246,15 @@ class DataController extends Controller
 		$Accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8';
 		
 		$client = new Client(['HTTP_USER_AGENT' => $agent]);		
-		$data = $client->request('GET', 'http://54.169.232.4' );	
-		dd($data->html());		
+		$data = $client->request('GET', 'http://localhost/test.html' );	
+		$data = $data->filterXpath("//span[@class='rows']/p/a[@class='i']");
+		$data->each(function ($node){
+
+			$data = $node->attr('href');
+			if( ! preg_match("/\/\/.+/", $data)) {
+				echo $data . '<br>';
+			}
+
+		});	
 	}
 }
