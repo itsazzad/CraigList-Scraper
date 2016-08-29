@@ -11,8 +11,8 @@ class Url extends Model
 
     protected $fillable = ["name"];
 
-    public function links()
+    public function leads()
     {
-        return $this->hasMany('App\Link');
+        return $this->hasMany('App\Lead');
     }    
 }

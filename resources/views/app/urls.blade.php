@@ -26,16 +26,34 @@
 		</div>
 
 		<div class="form-group">
-			<button type="submit" class="btn btn-default">Add Url</button>
+			<center>
+				<button type="submit" class="btn btn-default">Scrap Url</button>
+			</center>
 		</div>
 	{!! Form::close() !!}
 	
-	@forelse($urls as $url)
-		<li>{{ $url->name }} 
-		<a href="{{ url('data/geturl').'?url='.$url->name }}">Scrap</a>
-		<a href="{{ url('data/links', $url->id) }}">View All Links</a>
-		</li>
-	@empty
-		<h2>No Url Found</h2>
-	@endforelse
+	@if(Session::has('leads'))
+	    <table class="table">
+			<tr>
+				<th>Email</th>
+				<td>Phone</td>
+				<td>Name</td>
+				<td>Title</td>
+			</tr>
+			@forelse( Session::get('leads') as $lead )
+				<tr>
+					<td>{{ $lead->email }}</td>
+					<td>{{ $lead->phone }}</td>
+					<td>{{ $lead->name }}</td>
+					<td>{{ $lead->title }}</td>
+				</tr>
+			@empty
+				<tr>
+					<td colspan="4"><h2>No Data Found</h2></td>
+				</tr>
+			@endforelse
+		</table>
+	@endif
+
+
 @stop

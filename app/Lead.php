@@ -9,10 +9,10 @@ class Lead extends Model
     
     protected $table = "leads";
 
-    protected $fillable = ["link_id", "name", "phone", "email", "title", "mapLocation", "body"];
+    protected $fillable = ["url_id", "link", "name", "phone", "email", "title", "mapLocation", "body"];
 
-    public function link(){
+    public function url(){
 
-    	$this->belongsTo('App/Link');
+    	$this->belongsTo('App/Url');
     }
 }

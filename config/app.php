@@ -146,6 +146,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         Collective\Remote\RemoteServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
 
     ],
 
@@ -197,6 +198,7 @@ return [
         'Html'      => 'Illuminate\Html\HtmlFacade',
         'Form'      => 'Illuminate\Html\FormFacade',
         'SSH' => Collective\Remote\RemoteFacade::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
 
     ],
 

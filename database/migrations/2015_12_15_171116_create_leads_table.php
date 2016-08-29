@@ -14,15 +14,16 @@ class CreateLeadsTable extends Migration
     {
         Schema::create('leads', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('link_id')->unsigned();
+            $table->integer('url_id')->unsigned();
+            $table->string('link')->unique();
             $table->string('name')->nullable();
             $table->string('phone', 20);
             $table->string('email', 100);
             $table->string('title');
             $table->text('mapLocation');
             $table->mediumText('body');
-            $table->foreign('link_id')
-                ->references('id')->on('links')->onDelete('cascade');
+            $table->foreign('url_id')
+                ->references('id')->on('urls')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -10,7 +10,6 @@
 	
 	@forelse($urls as $url)
 		<li>{{ $url->name }} 
-		<a href="{{ url('data/geturl').'?url='.$url->name }}">Scrap</a>
 		<a href="{{ url('data/links', $url->id) }}">View All Links</a>
 		</li>
 	@empty

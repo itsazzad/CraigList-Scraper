@@ -10,7 +10,9 @@
         "dunglas/php-torcontrol": "*",
         "fabpot/goutte": "*",
         "illuminate/html": "^5.0",
-		"laravelcollective/remote": "5.1.*"
+		"laravelcollective/remote": "5.1.*",
+        "guzzlehttp/guzzle": "~4.0",
+        "maatwebsite/excel": "~2.1.0"
 
     },
     "require-dev": {
